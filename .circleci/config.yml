@@ -88,7 +88,7 @@ jobs:
           command: |
             apk add --update tar gzip nodejs npm curl 
       - install_awscli
-      - install_nodejs
+        # - install_nodejs
       - install_aws_eks
       - install_kubectl
       - run:
