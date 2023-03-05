@@ -8,7 +8,7 @@ commands:
           command: |
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
-            sudo ./aws/install 
+            ./aws/install 
   install_nodejs:
     description: Install Node.js 13
     steps:
@@ -16,7 +16,7 @@ commands:
           name: Install Node.js 13
           command: |
             curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-            sudo apt install -y nodejs
+            apt install -y nodejs
   install_aws_eks:
     description: Install eksctl binaries
     steps:
@@ -24,7 +24,7 @@ commands:
           name: Install eksctl binaries
           command: |
             curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-            sudo mv /tmp/eksctl /usr/local/bin
+            mv /tmp/eksctl /usr/local/bin
             eksctl version
   install_kubectl:
     description:
@@ -33,7 +33,7 @@ commands:
           name: Install kubectl
           command: |
             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-            sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
             kubectl version --client
 jobs:
   test-phase:
