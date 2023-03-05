@@ -37,23 +37,11 @@ jobs:
       - run:
           name: Build docker image
           command: |
-            docker build --tag=myimage .
-            docker image ls
-  upload_image:
-    docker:
-      - image: circleci/golang:1.15
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 20.10.14
-      - run:
-          name: upload docker image
-          command: |
-            echo "Docker image name is : $DOCKER_IMAGE"
+            docker build --tag=myproject .
+            docker images ls
             docker login -u="$DOCKER_USER" -p="$DOCKER_PASSWD"
-            docker tag myimage $DOCKER_CUSTOM_IMAGE
-            docker push $DOCKER_CUSTOM_IMAGE
+            docker tag myproject src1307/myproject:v1
+            docker push src1307/myproject:v1
             
 
 workflows:
