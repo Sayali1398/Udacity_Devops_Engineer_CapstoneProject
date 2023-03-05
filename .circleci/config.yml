@@ -37,7 +37,7 @@ jobs:
       - run:
           name: Build docker image
           command: |
-            docker build --tag=$DOCKER_IMAGE .
+            docker build --tag=myimage .
             docker image ls
   upload_image:
     docker:
@@ -52,7 +52,7 @@ jobs:
           command: |
             echo "Docker image name is : $DOCKER_IMAGE"
             docker login -u="$DOCKER_USER" -p="$DOCKER_PASSWD"
-            docker tag $DOCKER_IMAGE $DOCKER_CUSTOM_IMAGE
+            docker tag myimage $DOCKER_CUSTOM_IMAGE
             docker push $DOCKER_CUSTOM_IMAGE
             
 
