@@ -86,8 +86,7 @@ jobs:
       - run:
           name: Install tar and gzip
           command: |
-            yum -y install tar
-            yum -y install gzip
+            apk add --update tar gzip nodejs npm curl 
       - install_awscli
       - install_nodejs
       - install_aws_eks
