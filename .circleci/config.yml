@@ -26,8 +26,37 @@ jobs:
           paths:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
+  build-docker:
+    docker:
+      - image: circleci/golang:1.15
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Build docker image
+          command: |
+            docker build --tag=$DOCKER_IMAGE .
+            docker image ls
+  upload_image:
+    docker:
+      - image: circleci/golang:1.15
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: upload docker image
+          command: |
+            echo "Docker image name is : $DOCKER_IMAGE"
+            docker login -u="$DOCKER_USER" -p="$DOCKER_PASSWD"
+            docker tag $DOCKER_IMAGE $DOCKER_CUSTOM_IMAGE
+            docker push $DOCKER_CUSTOM_IMAGE
+            
 
 workflows:
   default:
       jobs:
         - test-phase  
+        - build-docker:
+            requires: [test-phase]
+        - upload-image:
+            requires: [build-docker]
