@@ -1,4 +1,9 @@
 version: 2.1
+orbs:
+  aws-eks: circleci/aws-eks@0.2.3
+  kubernetes: circleci/kubernetes@0.4.0
+
+                                            
 commands:
   install_awscli:
     description: Install AWS CLI v2
@@ -89,8 +94,8 @@ jobs:
             apk add --update tar gzip nodejs npm curl gtar 
       - install_awscli
         # - install_nodejs
-      - install_aws_eks
-      - install_kubectl
+        #    - install_aws_eks
+        #- install_kubectl
       - run:
           name: AWS EKS cluster creation
           command: |
