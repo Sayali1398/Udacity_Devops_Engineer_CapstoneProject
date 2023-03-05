@@ -36,7 +36,7 @@ commands:
                 SUDO="sudo"
             fi
                 $SUDO mv src/eksctl /usr/local/bin/
-                rmdir eksctl_download
+                rmdir src
   install_kubectl:
     description:
     steps:
