@@ -29,7 +29,10 @@ commands:
           name: Install eksctl binaries
           command: |
             mkdir ~/install
-            curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/v0.132.0/eksctl_Linux_amd64.tar.gz" | tar xvf -C ~/install
+            curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/v0.132.0/eksctl_Linux_amd64.tar.gz" 
+            cd ~/install 
+            chmod 755 *
+            tar xvf -C ~/install
             mv ~/install/eksctl /usr/local/bin
             eksctl version
   install_kubectl:
