@@ -32,6 +32,8 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 20.10.14
       - run:
           name: Build docker image
           command: |
@@ -43,6 +45,8 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 20.10.14
       - run:
           name: upload docker image
           command: |
