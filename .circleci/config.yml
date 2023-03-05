@@ -58,5 +58,5 @@ workflows:
         - test-phase  
         - build-docker:
             requires: [test-phase]
-        - upload-image:
+        - upload_image:
             requires: [build-docker]
