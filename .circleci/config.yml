@@ -26,7 +26,7 @@ jobs:
           paths:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
-  build-docker:
+  build-upload-image:
     docker:
       - image: circleci/golang:1.15
     working_directory: ~/repo
@@ -48,7 +48,6 @@ workflows:
   default:
       jobs:
         - test-phase  
-        - build-docker:
+        - build-upload-image:
             requires: [test-phase]
-        - upload_image:
-            requires: [build-docker]
+        
