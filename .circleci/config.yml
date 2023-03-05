@@ -1,4 +1,40 @@
 version: 2.1
+commands:
+  install_awscli:
+    description: Install AWS CLI v2
+    steps:
+      - run:
+          name: Install AWS CLI v2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install 
+  install_nodejs:
+    description: Install Node.js 13
+    steps:
+      - run:
+          name: Install Node.js 13
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+            sudo apt install -y nodejs
+  install_aws_eks:
+    description: Install eksctl binaries
+    steps:
+      - run:
+          name: Install eksctl binaries
+          command: |
+            curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+            sudo mv /tmp/eksctl /usr/local/bin
+            eksctl version
+  install_kubectl:
+    description:
+    steps:
+      - run:
+          name: Install kubectl
+          command: |
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            kubectl version --client
 jobs:
   test-phase:
     docker:
@@ -42,7 +78,33 @@ jobs:
             docker login -u="$DOCKER_USER" -p="$DOCKER_PASSWD"
             docker tag myproject src1307/myproject:v1
             docker push src1307/myproject:v1
-            
+  deploy-eks-cluster:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: Install tar and gzip
+          command: |
+            yum -y install tar
+            yum -y install gzip
+      - install_awscli
+      - install_nodejs
+      - install_aws_eks
+      - install_kubectl
+      - run:
+          name: AWS EKS cluster creation
+          command: |
+            eksctl create cluster --name eks-cluster-capstone --region us-east-1
+            eksctl utils describe-stacks --region us-east-1 --cluster=eks-cluster-capstone
+            eksctl get cluster --name=eks-cluster-capstone --region=us-east-1
+      - run:
+          name: Deploy docker image in EKS Cluster
+          command: |
+            kubectl get nodes
+            kubectl create deployment udacityp5 --image=src1307/myproject:v1 
+            kubectl expose deployment/udacityp5 --type="LoadBalancer" --port 80
+            kubectl get all
 
 workflows:
   default:
@@ -50,4 +112,5 @@ workflows:
         - test-phase  
         - build-upload-image:
             requires: [test-phase]
-        
+        - deploy-eks-cluster:
+            requires: [build-upload-image]
