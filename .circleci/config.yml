@@ -76,7 +76,7 @@ jobs:
   build-upload-image:
     docker:
       - image: circleci/golang:1.15
-    working_directory: ~/repo
+        #working_directory: ~/repo
     steps:
       - checkout
       - setup_remote_docker:
