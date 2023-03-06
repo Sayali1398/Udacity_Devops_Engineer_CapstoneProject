@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
-  aws-eks: circleci/aws-eks@1.0.3
-  kubernetes: circleci/kubernetes@0.11.2
+  aws-eks: circleci/aws-eks@0.2.3
+  kubernetes: circleci/kubernetes@0.4.0
 
                                             
 commands:
@@ -89,7 +89,7 @@ jobs:
             docker login -u="$DOCKER_USER" -p="$DOCKER_PASSWD"
             docker tag myproject src1307/myproject:v1
             docker push src1307/myproject:v1
-  create-cluster:
+  deploy-eks-cluster:
     docker:
       - image: python:3.7-alpine3.11
     steps:
@@ -109,38 +109,12 @@ jobs:
             eksctl create cluster --name eks-cluster-capstone --region us-east-1
             eksctl utils describe-stacks --region us-east-1 --cluster=eks-cluster-capstone
             eksctl get cluster --name=eks-cluster-capstone --region=us-east-1
-  deploy-cluster:
-    executor: aws-eks/python3
-    parameters:
-      cluster-name:
-        description: |
-          eks-cluster-capstone
-        type: string
-    steps:
-      - checkout
-      - kubernetes/install
-      - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name >>
-          install-kubectl: true
-      - kubernetes/create-or-update-resource:
-          get rollout-status: true
-          resource-file-path: deployment.yml
-          resource-name: deployment/project5
-  check-cluster:
-    executor: aws-eks/python3
-    parameters: 
-      cluster-name:
-        description: |
-          eks-cluster-capstone
-        type: string
-    steps:
-      - kubernetes/install
-      - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name >>
       - run:
-          name: Check Cluster status
+          name: Deploy docker image in EKS Cluster
           command: |
             kubectl get nodes
+            kubectl create deployment udacityp5 --image=src1307/myproject:v1 
+            kubectl expose deployment/udacityp5 --type="LoadBalancer" --port 80
             kubectl get all
 
 workflows:
@@ -149,24 +123,5 @@ workflows:
         - test-phase  
         - build-upload-image:
             requires: [test-phase]
-        - create-cluster:
+        - deploy-eks-cluster:
             requires: [build-upload-image]
-        - deploy-cluster:
-            cluster-name: eks-cluster-capstone
-            requires: [create-cluster]
-        - aws-eks/update-container-image:
-            cluster-name: eks-cluster-capstone
-            container-image-updates: myproject=src1307/myproject:v1
-            post-steps:
-                - kubernetes/delete-resource:
-                    resource-names: project5
-                    resource-types: deployment
-                    wait: true
-            record: true
-            requires: [deploy-cluster]
-        - check-cluster:
-            cluster-name: eks-cluster-capstone
-            requires: [aws-eks/update-container-image]
-        - aws-eks/delete-cluster:
-            cluster-name: eks-cluster-capstone
-            requires: [check-cluster]
