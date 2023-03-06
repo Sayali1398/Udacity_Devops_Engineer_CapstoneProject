@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: project5
+  name: project5-uda
   labels:
-    app: project5
+    app: project5-uda
   namespace: default
 spec:
   replicas: 2
   progressDeadlineSeconds: 3600
   selector:
     matchLabels:
-      app: project5
+      app: project5-uda
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -19,7 +19,7 @@ spec:
   template:
     metadata:
       labels:
-        app: project5
+        app: project5-uda
     spec:
       containers:
         - image: src1307/myproject:v1
@@ -32,13 +32,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: project5
+  name: project5-uda
   labels:
-    app: project5
+    app: project5-uda
 spec:
   type: LoadBalancer
   selector:
-    app: project5
+    app: project5-uda
   ports:
     - port: 80
       targetPort: 80

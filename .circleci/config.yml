@@ -84,17 +84,17 @@ jobs:
       - run:
           name: Build docker image
           command: |
-            docker build --tag=myproject .
+            docker build --tag=project5-uda .
             pwd
             #cd ~/project/new_dockerfile
             #docker build --tag=mytesting .
             #sleep 30s
             docker images ls
             docker login -u="$DOCKER_USER" -p="$DOCKER_PASSWD"
-            docker tag myproject src1307/myproject:v1
+            docker tag project5-uda src1307/project5-uda:v1
             #docker tag mytesting src1307/mytesting:v1
             #docker images ls
-            docker push src1307/myproject:v1
+            docker push src1307/project5-uda:v1
             #docker push src1307/mytesting:v1
   create-cluster:
     docker:
@@ -113,15 +113,15 @@ jobs:
       - run:
           name: AWS EKS cluster creation
           command: |
-            eksctl create cluster --name eks-cluster-capstone --region us-east-1 --zones us-east-1a,us-east-1b,us-east-1c,us-east-1d
-            eksctl utils describe-stacks --region us-east-1 --cluster=eks-cluster-capstone
-            eksctl get cluster --name=eks-cluster-capstone --region=us-east-1
+            eksctl create cluster --name project5-uda --region us-east-1 --zones us-east-1a,us-east-1b,us-east-1c,us-east-1d
+            eksctl utils describe-stacks --region us-east-1 --cluster=project5-uda
+            eksctl get cluster --name=project5-uda --region=us-east-1
   deploy-cluster:
     executor: aws-eks/python3
     parameters:
       cluster-name:
         description: |
-          eks-cluster-capstone
+          project5-uda
         type: string
     steps:
       - checkout
@@ -132,13 +132,13 @@ jobs:
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
           resource-file-path: deployment.yml
-          resource-name: deployment/project5
+          resource-name: deployment/project5-uda
   check-cluster:
     executor: aws-eks/python3
     parameters: 
       cluster-name:
         description: |
-          eks-cluster-capstone
+          project5-uda
         type: string
     steps:
       - kubernetes/install
@@ -154,27 +154,27 @@ workflows:
   default:
       jobs:
         - test-phase  
-          #- build-upload-image:
-          #  requires: [test-phase]
-          #- create-cluster:
-          # requires: [build-upload-image]
-          # - deploy-cluster:
-          # cluster-name: eks-cluster-capstone
-          # requires: [create-cluster]
+        - build-upload-image:
+            requires: [test-phase]
+        - create-cluster:
+            requires: [build-upload-image]
+            - deploy-cluster:
+               cluster-name: project5-uda
+            requires: [create-cluster]
         - aws-eks/update-container-image:
-            cluster-name: eks-cluster-capstone
-            container-image-updates: src1307/myproject:v1
+            cluster-name: project5-uda
+            container-image-updates: project5-uda=src1307/project5-uda:v1
             post-steps:
                 - kubernetes/delete-resource:
-                    resource-names: project5
+                    resource-names: project5-uda
                     resource-types: deployment
                     wait: true
             record: true
-              #requires: [deploy-cluster]
-            resource-name: deployment/project5
+            requires: [deploy-cluster]
+            resource-name: deployment/project5-uda
         - check-cluster:
-            cluster-name: eks-cluster-capstone
+            cluster-name: project5-uda
             requires: [aws-eks/update-container-image]
-              #  - aws-eks/delete-cluster:
-              #cluster-name: eks-cluster-capstone
+              #       - aws-eks/delete-cluster:
+              #     cluster-name: project5-uda
               #requires: [check-cluster]
