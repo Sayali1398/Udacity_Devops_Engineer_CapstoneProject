@@ -85,6 +85,7 @@ jobs:
           name: Build docker image
           command: |
             docker build --tag=myproject .
+            pwd
             cd ./new_dockerfile
             docker build --tag=mytesting .
             sleep 30s
