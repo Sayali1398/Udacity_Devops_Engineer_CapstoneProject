@@ -85,10 +85,16 @@ jobs:
           name: Build docker image
           command: |
             docker build --tag=myproject .
+            cd ./new_dockerfile
+            docker build --tag=mytesting .
+            sleep 30s
             docker images ls
             docker login -u="$DOCKER_USER" -p="$DOCKER_PASSWD"
             docker tag myproject src1307/myproject:v1
+            docker tag mytesting src1307/mytesting:v1
+            docker images ls
             docker push src1307/myproject:v1
+            docker push src1307/mytesting:v1
   create-cluster:
     docker:
       - image: python:3.7-alpine3.11
@@ -109,6 +115,23 @@ jobs:
             eksctl create cluster --name eks-cluster-capstone --region us-east-1 --zones us-east-1a,us-east-1b,us-east-1c,us-east-1d
             eksctl utils describe-stacks --region us-east-1 --cluster=eks-cluster-capstone
             eksctl get cluster --name=eks-cluster-capstone --region=us-east-1
+  build-upload-image:
+    docker:
+      - image: circleci/golang:1.15
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+      - run:
+          name: Build docker image
+          command: |
+            cd ./new_dockerfile
+            docker build --tag=myproject1 .
+            docker images ls
+            docker login -u="$DOCKER_USER" -p="$DOCKER_PASSWD"
+            docker tag myproject1 src1307/myproject:v2
+            docker push src1307/myproject:v2
   deploy-cluster:
     executor: aws-eks/python3
     parameters:
@@ -156,7 +179,7 @@ workflows:
             requires: [create-cluster]
         - aws-eks/update-container-image:
             cluster-name: eks-cluster-capstone
-            container-image-updates: myproject=src1307/myproject:v1
+            container-image-updates: src1307/mytesting:v1
             post-steps:
                 - kubernetes/delete-resource:
                     resource-names: project5
