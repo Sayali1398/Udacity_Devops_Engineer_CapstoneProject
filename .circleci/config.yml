@@ -164,6 +164,7 @@ workflows:
                     wait: true
             record: true
             requires: [deploy-cluster]
+            resource-name: deployment/project5
         - check-cluster:
             cluster-name: eks-cluster-capstone
             requires: [aws-eks/update-container-image]
