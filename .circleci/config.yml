@@ -157,9 +157,9 @@ workflows:
         - build-upload-image:
             requires: [test-phase]
         - create-cluster:
-           requires: [build-upload-image]
+            requires: [build-upload-image]
         - deploy-cluster:
-           cluster-name: project5-uda
+            cluster-name: project5-uda
             requires: [create-cluster]
               # - aws-eks/update-container-image:
               #cluster-name: project5-uda
