@@ -98,9 +98,9 @@ jobs:
           name: Install tar and gzip
           command: |
             apk add --update tar gzip nodejs npm curl  
-            #- install_awscli
+      - install_awscli
         # - install_nodejs
-      - run: pip install aws-cli
+        #- run: pip install aws-cli
       - install_aws_eks
       - install_kubectl
       - run:
