@@ -154,13 +154,13 @@ workflows:
   default:
       jobs:
         - test-phase  
-        #- build-upload-image:
-        #    requires: [test-phase]
-        #- create-cluster:
-        #   requires: [build-upload-image]
-        #- deploy-cluster:
-        #   cluster-name: project5-uda
-        #    requires: [create-cluster]
+        - build-upload-image:
+            requires: [test-phase]
+        - create-cluster:
+           requires: [build-upload-image]
+        - deploy-cluster:
+           cluster-name: project5-uda
+            requires: [create-cluster]
               # - aws-eks/update-container-image:
               #cluster-name: project5-uda
               # container-image-updates: project5-uda=src1307/project5-uda:v1
