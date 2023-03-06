@@ -84,17 +84,17 @@ jobs:
       - run:
           name: Build docker image
           command: |
-            docker build --tag=project5-uda .
+            docker build --tag=project5-udacity .
             pwd
             #cd ~/project/new_dockerfile
             #docker build --tag=mytesting .
             #sleep 30s
             docker images ls
             docker login -u="$DOCKER_USER" -p="$DOCKER_PASSWD"
-            docker tag project5-uda src1307/project5-uda:v1
+            docker tag project5-udacity src1307/project5-udacity:v1
             #docker tag mytesting src1307/mytesting:v1
             #docker images ls
-            docker push src1307/project5-uda:v1
+            docker push src1307/project5-udacity:v1
             #docker push src1307/mytesting:v1
   create-cluster:
     docker:
@@ -113,15 +113,15 @@ jobs:
       - run:
           name: AWS EKS cluster creation
           command: |
-            eksctl create cluster --name project5-uda --region us-east-1 --zones us-east-1a,us-east-1b,us-east-1c,us-east-1d
-            eksctl utils describe-stacks --region us-east-1 --cluster=project5-uda
-            eksctl get cluster --name=project5-uda --region=us-east-1
+            eksctl create cluster --name project5-udacity --region us-east-1 --zones us-east-1a,us-east-1b,us-east-1c,us-east-1d
+            eksctl utils describe-stacks --region us-east-1 --cluster=project5-udacity
+            eksctl get cluster --name=project5-udacity --region=us-east-1
   deploy-cluster:
     executor: aws-eks/python3
     parameters:
       cluster-name:
         description: |
-          project5-uda
+          project5-udacity
         type: string
     steps:
       - checkout
@@ -132,13 +132,13 @@ jobs:
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
           resource-file-path: deployment.yml
-          resource-name: deployment/project5-uda
+          resource-name: deployment/project5-udacity
   check-cluster:
     executor: aws-eks/python3
     parameters: 
       cluster-name:
         description: |
-          project5-uda
+          project5-udacity
         type: string
     steps:
       - kubernetes/install
@@ -159,22 +159,22 @@ workflows:
         - create-cluster:
             requires: [build-upload-image]
         - deploy-cluster:
-            cluster-name: project5-uda
+            cluster-name: project5-udacity
             requires: [create-cluster]
               # - aws-eks/update-container-image:
-              #cluster-name: project5-uda
-              # container-image-updates: project5-uda=src1307/project5-uda:v1
+              #cluster-name: project5-udacity
+              # container-image-updates: project5-udacity=src1307/project5-udacity:v1
               # post-steps:
               # - kubernetes/delete-resource:
-              #     resource-names: project5-uda
+              #     resource-names: project5-udacity
               #     resource-types: deployment
               #     wait: true
               #record: true
               #requires: [deploy-cluster]
-              # resource-name: deployment/project5-uda
+              # resource-name: deployment/project5-udacity
         - check-cluster:
-            cluster-name: project5-uda
+            cluster-name: project5-udacity
             requires: [deploy-cluster]
               #       - aws-eks/delete-cluster:
-              #     cluster-name: project5-uda
+              #     cluster-name: project5-udacity
               #requires: [check-cluster]
