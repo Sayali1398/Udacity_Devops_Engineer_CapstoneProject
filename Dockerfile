@@ -1,6 +1,6 @@
 FROM python:3.7.3-stretch
-WORKDIR /src
-COPY . app.py /src/
+WORKDIR /app
+COPY . app.py /app/
 ## Step 3:
 # Install packages from requirements.txt
 # hadolint ignore=DL3013
